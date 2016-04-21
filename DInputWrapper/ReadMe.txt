@@ -3,7 +3,8 @@
 ========================================================================
 
 Installation:
-   Simply drop the dinput8.dll file into the .exe folder. DO NOT COPY 
+   Simply drop the dinput8.dll file into the .exe folder. If game fails
+to launch it's possible you need VCRedist 2015 installed. DO NOT COPY 
 INTO SYSTEM FOLDER.
 	
 Removal:
