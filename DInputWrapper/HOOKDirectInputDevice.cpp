@@ -6,6 +6,9 @@
 #include "dinput.h"
 #include "HOOKDirectInputDevice.h"
 
+static int   isConfigLoaded = 0;
+static float aspect         = 1.77777777777777;
+
 HRESULT WINAPI HOOKDirectInputDevice::QueryInterface(REFIID iid, void ** ppvObject)
 {
 	return actualDirectInputDevice->QueryInterface(iid, ppvObject);
@@ -76,7 +79,16 @@ HRESULT WINAPI HOOKDirectInputDevice::GetDeviceData(DWORD cbObjectData, LPDIDEVI
 	for (i = 0; i < *pdwInOut; i++)
 	{
 		if (rgdod[i].dwOfs == DIMOFS_Y)
-			rgdod[i].dwData *= 2;
+		{
+			/*
+				Microsoft decided it would be funny to store signed values as DWORD here,
+				which means that we'll be doing some ugly casting hacks to work around it.
+				I'm sorry if you had to read this code. Blame 'Gates.
+			*/
+
+			int value = *(int*)&rgdod[i].dwData;
+			rgdod[i].dwData = value * aspect;
+		}
 	}
 
 	return res;
@@ -201,6 +213,21 @@ HRESULT WINAPI HOOKDirectInputDevice::WriteEffectToFile(LPCWSTR lpszFileName, DW
 
 HOOKDirectInputDevice::HOOKDirectInputDevice(IDirectInputDevice8 *actual)
 {
+	if (!isConfigLoaded)
+	{
+		FILE *f = NULL;
+		errno_t err = fopen_s(&f, "sensitivity.txt", "r");
+
+		if (!err)
+		{
+			fscanf_s(f, "%f", &aspect);
+			fclose(f);
+		}
+
+		isConfigLoaded = 1;
+
+	}
+
 	actualDirectInputDevice = actual;
 	dformat = 0;
 }
