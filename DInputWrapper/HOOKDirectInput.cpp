@@ -28,7 +28,7 @@ HRESULT	WINAPI HOOKDirectInput::ConfigureDevices(LPDICONFIGUREDEVICESCALLBACK lp
 HRESULT	WINAPI HOOKDirectInput::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8 *lpDirectInputDevice, LPUNKNOWN pUnkOuter)
 {
 	HRESULT res = actual->CreateDevice(rguid, lpDirectInputDevice, pUnkOuter);
-	if (FAILED(res))
+	if (rguid != GUID_SysMouse || FAILED(res))
 		return res;
 
 	IDirectInputDevice8 *dev = new HOOKDirectInputDevice(*lpDirectInputDevice);
